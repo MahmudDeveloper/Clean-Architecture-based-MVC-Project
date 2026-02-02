@@ -1,0 +1,55 @@
+﻿@model List<Product>
+
+@section title {
+    <h3>Products</h3>
+}
+@if (Model != null && Model.Count() > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model)
+            {
+                <tr>
+                    <td>@product.Category?.CategoryName</td>
+                    <td>@product.Name</td>
+                    <td>@product.Price</td>
+                    <td>@product.Quantity</td>
+                    <td><a class="btn btn-link" asp-action="edit" asp-controller="products" asp-route-id="@product.ProductId">Edit</a></td>
+                    <td>
+                        <form method="post" asp-controller="products" asp-action="delete" asp-route-id="@product.ProductId" style="display:inline">
+                            <button type="submit" class="btn btn-link" onclick="return confirmDelete()">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+    <tr>
+        <td colspan="3" class="text-end">
+            <a class="btn btn-success"
+               asp-action="Add"
+               asp-controller="products">
+                Add Product
+            </a>
+        </td>
+    </tr>
+
+@section Scripts {
+    <script>
+        function confirmDelete(){
+            return confirm("Sind Sie sicher, dass Sie diese Kategorie loschen mochten?");
+        }
+    </script>
+}
