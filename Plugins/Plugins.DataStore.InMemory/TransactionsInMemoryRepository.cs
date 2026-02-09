@@ -1,11 +1,20 @@
-﻿namespace MVC_Project.Models
-{   
-    public static class TransactionsRepository
+﻿using CoreBusiness;
+using UseCases.DataStorepluginInterfaces;
+using UseCases.interfaces;
+
+namespace MVC_Project.Models
+{
+    public  class TransactionsInMemoryRepository:ITransactionRepository
     {
+        public TransactionsInMemoryRepository(IViewSelectedProductUseCase viewSelectedProductUseCase)
+        {
+            this.viewSelectedProductUseCase = viewSelectedProductUseCase;
+        }
 
-        private static List<Transaction> transactions = new List<Transaction>();
+        private  List<Transaction> transactions = new List<Transaction>();
+        private readonly IViewSelectedProductUseCase viewSelectedProductUseCase;
 
-        public static IEnumerable<Transaction> GetByDayAndCashier(string cashierName, DateTime date)
+        public  IEnumerable<Transaction> GetByDayAndCashier(string cashierName, DateTime date)
         {
             if (string.IsNullOrWhiteSpace(cashierName))
                 return transactions.Where(x => x.TimeStamp.Date == date.Date);
@@ -15,7 +24,7 @@
                     x.TimeStamp.Date == date.Date);
         }
 
-        public static IEnumerable<Transaction> Search(string cashierName, DateTime startDate, DateTime endDate)
+        public  IEnumerable<Transaction> Search(string cashierName, DateTime startDate, DateTime endDate)
         {
             if (string.IsNullOrWhiteSpace(cashierName))
                 return transactions.Where(x => x.TimeStamp >= startDate.Date && x.TimeStamp <= endDate.Date.AddDays(1).Date);
@@ -25,17 +34,18 @@
                     x.TimeStamp >= startDate.Date && x.TimeStamp <= endDate.Date.AddDays(1).Date);
         }
 
-        public static void Add(string cashierName, int productId, string productName, double price, int beforeQty, int soldQty)
+        public void Add(string cashierName, int qtyToSell, int productId)
         {
+            var product = viewSelectedProductUseCase.Execute(productId);
             var transaction = new Transaction
             {
-                ProductId = productId,
-                ProductName = productName,
+                ProductId = product.ProductId,
+                ProductName = product.Name,
                 TimeStamp = DateTime.Now,
-                Price = price,
-                BeforeQuantity = beforeQty,
-                SoldQuantity = soldQty,
-                CashierName = cashierName
+                Price = product.Price,
+                BeforeQuantity = product.Quantity,
+                SoldQuantity = qtyToSell,
+                CashierName = "Cashier1"
             };
 
             if (transactions != null && transactions.Count > 0)

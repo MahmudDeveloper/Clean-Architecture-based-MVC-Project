@@ -1,6 +1,6 @@
-﻿using MVC_Project.Models;
+﻿using CoreBusiness;
 
-namespace MVC_Project.ViewModels
+namespace Infrastructure.ViewModels
 {
     public class ProductViewModel
     {

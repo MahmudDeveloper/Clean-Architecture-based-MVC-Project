@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MVC_Project.Models
+namespace CoreBusiness
 {
     public class Category
     {
@@ -9,5 +9,8 @@ namespace MVC_Project.Models
         [Required]
         public string CategoryName { get; set; } = string.Empty;
         public string? CategoryDescription { get; set; } = string.Empty;
+
+        public List<Product>? Products { get; set; }
+
     }
 }

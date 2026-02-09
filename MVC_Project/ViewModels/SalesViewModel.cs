@@ -1,8 +1,8 @@
-﻿using MVC_Project.Models;
-using MVC_Project.ViewModels.Validations;
+﻿using CoreBusiness;
+using Infrastructure.ViewModels.Validations;
 using System.ComponentModel.DataAnnotations;
 
-namespace MVC_Project.ViewModels
+namespace Infrastructure.ViewModels
 {
     public class SalesViewModel
     {

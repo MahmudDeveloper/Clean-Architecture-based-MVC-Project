@@ -1,10 +1,22 @@
-﻿using MVC_Project.Models;
+﻿using CoreBusiness;
+using MVC_Project.Models;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UseCases.DataStorepluginInterfaces;
+using UseCases.interfaces;
 
-namespace WebApp.Models
+namespace Plugins.DataStore.InMemory
 {
-    public class ProductsRepository
+    public class ProductsInMemoryRepository : IProductRepository
     {
-        private static List<Product> _products = new List<Product>()
+        private readonly IViewSelectedCategoryUseCase viewSelectedCategoryUseCase;
+        public ProductsInMemoryRepository(IViewSelectedCategoryUseCase viewSelectedCategoryUseCase)
+        {
+            this.viewSelectedCategoryUseCase = viewSelectedCategoryUseCase;
+        }
+
+        private List<Product> _products = new List<Product>()
         {
             new Product { ProductId = 1, CategoryId = 1, Name = "Iced Tea", Quantity = 100, Price = 1.99 },
             new Product { ProductId = 2, CategoryId = 1, Name = "Canada Dry", Quantity = 200, Price = 1.99 },
@@ -12,7 +24,7 @@ namespace WebApp.Models
             new Product { ProductId = 4, CategoryId = 2, Name = "White Bread", Quantity = 300, Price = 1.50 }
         };
 
-        public static void AddProduct(Product product)
+        public void AddProduct(Product product)
         {
             if (_products.Count > 0)
             {
@@ -26,23 +38,15 @@ namespace WebApp.Models
             _products.Add(product);
         }
 
-        public static List<Product> GetProducts(bool loadCategory = false)
+        public IEnumerable<Product> GetProductsInCategory(int categoryId)
         {
-            if(loadCategory==false)
-            {
-                return _products; 
-            }
-            else
-            {
-                foreach(var product in _products)
-                {
-                    product.Category = CategoriesRepository.GetCategoryById(product.CategoryId.HasValue?product.CategoryId.Value:0);
-                }
-                return _products??new List<Product>();
-            }
+
+            var products = _products.Where(x => x.CategoryId == categoryId).ToList();
+
+            return products ?? new List<Product>();
         }
 
-        public static Product? GetProductById(int productId, bool loadCategory = false)
+        public Product? GetProductById(int productId, bool loadCategory = false)
         {
             var product = _products.FirstOrDefault(x => x.ProductId == productId);
             if (product != null)
@@ -55,16 +59,16 @@ namespace WebApp.Models
                     Price = product.Price,
                     CategoryId = product.CategoryId
                 };
-                if(loadCategory && prod.CategoryId.HasValue)
+                if (loadCategory && prod.CategoryId.HasValue)
                 {
-                    prod.Category = CategoriesRepository.GetCategoryById(prod.CategoryId.Value);
+                    prod.Category = viewSelectedCategoryUseCase.Execute(prod.CategoryId.Value);
                 }
-            return prod;
+                return prod;
             }
             return null;
         }
 
-        public static void UpdateProduct(int productId, Product product)
+        public void UpdateProduct(int productId, Product product)
         {
             if (productId != product.ProductId) return;
 
@@ -78,7 +82,7 @@ namespace WebApp.Models
             }
         }
 
-        public static void DeleteProduct(int productId)
+        public void DeleteProduct(int productId)
         {
             var product = _products.FirstOrDefault(x => x.ProductId == productId);
             if (product != null)
@@ -87,7 +91,7 @@ namespace WebApp.Models
             }
         }
 
-        public static List<Product> GetProductsByCategory(int categoryId)
+        public IEnumerable<Product> GetProductsByCategory(int categoryId)
         {
             var products = _products.Where(x => x.CategoryId == categoryId);
             if (products != null)
@@ -95,7 +99,23 @@ namespace WebApp.Models
                 return products.ToList();
             }
             return new List<Product>();
-            
+
+        }
+
+        public IEnumerable<Product> GetProducts(bool loadCategory)
+        {
+            if (loadCategory == false)
+            {
+                return _products;
+            }
+            else
+            {
+                foreach (var product in _products)
+                {
+                    product.Category = viewSelectedCategoryUseCase.Execute(product.CategoryId.HasValue ? product.CategoryId.Value : 0);
+                }
+                return _products ?? new List<Product>();
+            }
         }
     }
 }

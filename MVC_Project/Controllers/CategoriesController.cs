@@ -1,13 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MVC_Project.Models;
+﻿using CoreBusiness;
+using Microsoft.AspNetCore.Mvc;
+using UseCases.interfaces;
 
-namespace MVC_Project.Controllers
+namespace Infrastructure.Controllers
 {
     public class CategoriesController : Controller
     {
+        private readonly IViewCategoriesUseCase viewCategoriesUseCase;
+        private readonly IEditCategoryUseCase editCategoryUseCase;
+        private readonly IDeleteCategoryUseCase deleteCategoryUseCase;
+        private readonly IAddCategoryUseCase addCategoryUseCase;
+        private readonly IViewSelectedCategoryUseCase viewSelectedCategoryUseCase;
+
+        public CategoriesController(IViewCategoriesUseCase viewCategoriesUseCase,
+                                    IEditCategoryUseCase editCategoryUseCase,
+                                    IDeleteCategoryUseCase deleteCategoryUseCase,
+                                    IAddCategoryUseCase addCategoryUseCase,
+                                    IViewSelectedCategoryUseCase viewSelectedCategoryUseCase)
+        {
+            this.viewCategoriesUseCase = viewCategoriesUseCase;
+            this.editCategoryUseCase = editCategoryUseCase;
+            this.deleteCategoryUseCase = deleteCategoryUseCase;
+            this.addCategoryUseCase = addCategoryUseCase;
+            this.viewSelectedCategoryUseCase = viewSelectedCategoryUseCase;
+        }
         public IActionResult Index()
         {
-            var categories = CategoriesRepository.GetCategories();
+            var categories = viewCategoriesUseCase.Execute();
             return View(categories);
         }
 
@@ -16,16 +35,17 @@ namespace MVC_Project.Controllers
         {
             ViewBag.Action = "edit";
 
-            var category = CategoriesRepository.GetCategoryById(id.HasValue?id.Value:0);
+            Category? category = viewSelectedCategoryUseCase.Execute(id.HasValue?id.Value:0);
             return View(category);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(Category category)
         {
             if (ModelState.IsValid)
             {
-                CategoriesRepository.UpdateCategory(category.CategoryId, category);
+                editCategoryUseCase.Execute(category.CategoryId, category);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -42,11 +62,12 @@ namespace MVC_Project.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Add([FromForm]Category category)
         {
             if (ModelState.IsValid)
             {
-                CategoriesRepository.AddCategory(category);
+                addCategoryUseCase.Execute(category);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -56,9 +77,9 @@ namespace MVC_Project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete([FromBody]int id)
+        public IActionResult Delete(int id)
         {
-            CategoriesRepository.DeleteCategory(id);
+            deleteCategoryUseCase.Execute(id);
             return RedirectToAction(nameof(Index));
         }
     }

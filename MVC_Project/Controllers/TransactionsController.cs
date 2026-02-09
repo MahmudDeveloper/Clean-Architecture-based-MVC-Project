@@ -1,11 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MVC_Project.Models;
-using MVC_Project.ViewModels;
+using Infrastructure.ViewModels;
+using UseCases.interfaces;
+using UseCases.TransactionsUseCases;
 
-namespace MVC_Project.Controllers
+namespace Infrastructure.Controllers
 {
     public class TransactionsController : Controller
     {
+        private readonly ISearchTransactionUseCase searchTransactionUseCase;
+
+        public TransactionsController(ISearchTransactionUseCase searchTransactionUseCase)
+        {
+            this.searchTransactionUseCase = searchTransactionUseCase;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -14,9 +22,10 @@ namespace MVC_Project.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Search(TransactionsViewModel transactionsViewModel)
         {
-            var transactions = TransactionsRepository.Search(transactionsViewModel.CashierName??string.Empty, transactionsViewModel.StartDate, transactionsViewModel.EndDate);
+            var transactions = searchTransactionUseCase.Execute(transactionsViewModel.CashierName??string.Empty, transactionsViewModel.StartDate, transactionsViewModel.EndDate);
 
             transactionsViewModel.Transactions = transactions;
             return View("Index", transactionsViewModel);
