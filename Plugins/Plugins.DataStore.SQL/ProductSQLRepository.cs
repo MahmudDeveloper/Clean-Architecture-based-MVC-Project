@@ -70,7 +70,7 @@ namespace Plugins.DataStore.SQL
 
         public void UpdateProduct(int productId, Product product)
         {
-            if(productId == product.ProductId) { return; }
+            if(productId != product.ProductId) { return; }
 
             var prod = db.Products.Find(productId);
             prod.Name = product.Name;

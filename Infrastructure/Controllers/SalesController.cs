@@ -3,22 +3,27 @@ using Infrastructure.ViewModels;
 using UseCases.DataStorepluginInterfaces;
 using UseCases.interfaces;
 using UseCases.ProductsUseCases;
- 
+using Microsoft.AspNetCore.Authorization;
+
 namespace Infrastructure.Controllers
 {
+    [Authorize(Policy = "Sales")]
     public class SalesController : Controller
     {
         private readonly IViewSelectedProductUseCase viewSelectedProductUseCase;
         private readonly IViewCategoriesUseCase viewCategoriesUseCase;
         private readonly ISellProductUseCase sellProductUseCase;
+        private readonly IViewProductsInCategory viewProductsInCategory;
 
         public SalesController(IViewSelectedProductUseCase viewSelectedProductUseCase,
                                IViewCategoriesUseCase viewCategoriesUseCase,
-                               ISellProductUseCase sellProductUseCase)
+                               ISellProductUseCase sellProductUseCase,
+                               IViewProductsInCategory viewProductsInCategory)
         {
             this.viewSelectedProductUseCase = viewSelectedProductUseCase;
             this.viewCategoriesUseCase = viewCategoriesUseCase;
             this.sellProductUseCase = sellProductUseCase;
+            this.viewProductsInCategory = viewProductsInCategory;
         }
         public IActionResult Index()
         {
@@ -54,6 +59,12 @@ namespace Infrastructure.Controllers
 
             salesViewModel.Categories = viewCategoriesUseCase.Execute();
             return View("Index", salesViewModel);
+        }
+
+        public IActionResult ProductsByCategoryPartial(int categoryId)
+        {
+            var products = viewProductsInCategory.Execute(categoryId);
+            return PartialView("_Products", products);
         }
     }
 }

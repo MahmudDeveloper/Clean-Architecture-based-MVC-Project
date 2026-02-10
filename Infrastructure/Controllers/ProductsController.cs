@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Infrastructure.ViewModels;
 using UseCases.interfaces;
 using UseCases.ProductsUseCases;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Infrastructure.Controllers
 {
+    [Authorize(Policy = "Inventory")]
     public class ProductsController : Controller
     {
         private readonly IAddProductUseCase addProductUseCase;
@@ -15,15 +17,13 @@ namespace Infrastructure.Controllers
         private readonly IViewSelectedProductUseCase viewSelectedProductUseCase;
         private readonly IEditProductUseCase editProductUseCase;
         private readonly IViewCategoriesUseCase viewCategoriesUseCase;
-        private readonly IViewProductsInCategory viewProductsInCategory;
 
         public ProductsController(IAddProductUseCase addProductUseCase,
                                   IDeleteProductUseCase deleteProductUseCase,
                                   IViewProductsUseCase viewProductsUseCase,
                                   IViewSelectedProductUseCase viewSelectedProductUseCase,
                                   IEditProductUseCase editProductUseCase,
-                                  IViewCategoriesUseCase viewCategoriesUseCase,
-                                  IViewProductsInCategory viewProductsInCategory)
+                                  IViewCategoriesUseCase viewCategoriesUseCase)
         {
             this.addProductUseCase = addProductUseCase;
             this.deleteProductUseCase = deleteProductUseCase;
@@ -31,7 +31,6 @@ namespace Infrastructure.Controllers
             this.viewSelectedProductUseCase = viewSelectedProductUseCase;
             this.editProductUseCase = editProductUseCase;
             this.viewCategoriesUseCase = viewCategoriesUseCase;
-            this.viewProductsInCategory = viewProductsInCategory;
         }
 
         [HttpGet]
@@ -111,11 +110,7 @@ namespace Infrastructure.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult ProductsByCategoryPartial(int categoryId)
-        {
-            var products = viewProductsInCategory.Execute(categoryId);
-            return PartialView("_Products", products);
-        }
+        
 
     }
 }

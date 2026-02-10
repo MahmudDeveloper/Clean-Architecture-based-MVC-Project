@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UseCases.interfaces;
 
-namespace Infrastructure.ViewComponents
+    namespace Infrastructure.ViewComponents
 {
     public class TransactionsViewComponent:ViewComponent
     {

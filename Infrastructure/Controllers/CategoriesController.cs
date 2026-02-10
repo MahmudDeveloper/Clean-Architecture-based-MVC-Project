@@ -1,9 +1,11 @@
 ﻿using CoreBusiness;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UseCases.interfaces;
 
 namespace Infrastructure.Controllers
 {
+    [Authorize(Policy = "Inventory")]
     public class CategoriesController : Controller
     {
         private readonly IViewCategoriesUseCase viewCategoriesUseCase;

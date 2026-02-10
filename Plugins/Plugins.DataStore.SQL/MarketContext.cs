@@ -5,7 +5,7 @@ namespace Plugins.DataStore.SQL
 {
     public class MarketContext:DbContext
     {
-        public MarketContext(DbContextOptions dbContextOptions):base(dbContextOptions)
+        public MarketContext(DbContextOptions<MarketContext> dbContextOptions):base(dbContextOptions)
         {
             
         }

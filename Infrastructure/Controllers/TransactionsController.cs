@@ -2,9 +2,11 @@
 using Infrastructure.ViewModels;
 using UseCases.interfaces;
 using UseCases.TransactionsUseCases;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Infrastructure.Controllers
 {
+    [Authorize]
     public class TransactionsController : Controller
     {
         private readonly ISearchTransactionUseCase searchTransactionUseCase;

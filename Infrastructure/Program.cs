@@ -7,6 +7,8 @@ using UseCases.DataStorepluginInterfaces;
 using UseCases.interfaces;
 using UseCases.ProductsUseCases;
 using UseCases.TransactionsUseCases;
+using Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +22,22 @@ builder.Services.AddDbContext<MarketContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SupermarketManagement"));
 });
+
+builder.Services.AddDbContext<InfrastructureContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SupermarketManagement"));
+});
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<InfrastructureContext>();
+
+builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Inventory", p => p.RequireClaim("Position", "Adminstrator"));
+    options.AddPolicy("Sales", p => p.RequireClaim("Position", "Seller"));
+});
 
 if (builder.Environment.IsEnvironment("QA"))
 {
@@ -64,12 +80,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
 
-app.UseAuthorization();
+app.UseRouting();
 
 app.MapStaticAssets();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

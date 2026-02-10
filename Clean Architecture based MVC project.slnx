@@ -4,6 +4,6 @@
     <Project Path="Plugins/Plugins.DataStore.SQL/Plugins.DataStore.SQL.csproj" Id="e7419a40-a0e8-4e4c-9397-b1764c9e7885" />
   </Folder>
   <Project Path="CoreBusiness/CoreBusiness.csproj" Id="d4231a29-2eea-4fea-a64f-7a51677e118b" />
-  <Project Path="MVC_Project/Infrastructure.csproj" />
+  <Project Path="Infrastructure/Infrastructure.csproj" />
   <Project Path="UseCases/UseCases.csproj" />
 </Solution>
